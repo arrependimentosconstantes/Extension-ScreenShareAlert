@@ -29,11 +29,6 @@ const settings = definePluginSettings({
         description: "Detectar gravações externas",
         default: true
     },
-    notifyExternalRecording: {
-        type: OptionType.BOOLEAN,
-        description: "Notificar quando você está sendo gravado externamente",
-        default: true
-    },
     enableDragAndDrop: {
         type: OptionType.BOOLEAN,
         description: "Ativar arrastar e soltar para mover a notificação",
@@ -146,7 +141,6 @@ export default definePlugin({
         this.isUserSharing = false;
         this.isUserRecording = false;
         this.isInCall = false;
-        this.recordingAlertShown = false;
         this.customPosition = {
             x: null,
             y: null
@@ -168,7 +162,7 @@ export default definePlugin({
         this.interval = setInterval(() => {
             if (this.isInCall) {
                 this.detectScreenShare();
-                this.checkForExternalRecording();
+                this.detectExternalRecordings();
             }
         }, 1500);
     },
@@ -199,11 +193,9 @@ export default definePlugin({
             
             if (this.isInCall && !wasInCall) {
                 console.log("[ScreenShareAlert] 📞 Você entrou em uma call!");
-                this.recordingAlertShown = false; // Reset alert flag ao entrar em call
             } else if (!this.isInCall && wasInCall) {
                 console.log("[ScreenShareAlert] 📞 Você saiu da call!");
                 this.activeStreams.clear();
-                this.recordingAlertShown = false;
             }
         } catch (e) {
             console.debug("[ScreenShareAlert] Erro ao verificar status da call:", e);
@@ -239,65 +231,6 @@ export default definePlugin({
         }
         
         return false;
-    },
-
-    // Verificar se alguém está gravando externamente
-    checkForExternalRecording() {
-        if (!this.settings.store.detectRecording || !this.settings.store.notifyExternalRecording) {
-            return;
-        }
-
-        try {
-            // Procurar por indicadores de gravação na call
-            const recordingIndicators = document.querySelectorAll(
-                '[aria-label*="recording"], ' +
-                '[aria-label*="Record"], ' +
-                '[class*="recording"], ' +
-                '[class*="recording-indicator"], ' +
-                '[title*="recording"], ' +
-                '[data-testid*="recording"]'
-            );
-
-            let isRecordingDetected = false;
-
-            if (recordingIndicators.length > 0) {
-                for (const indicator of recordingIndicators) {
-                    const text = indicator.textContent?.toLowerCase() || "";
-                    const ariaLabel = indicator.getAttribute("aria-label")?.toLowerCase() || "";
-                    const className = indicator.className.toLowerCase();
-                    const isVisible = window.getComputedStyle(indicator).display !== "none";
-                    
-                    if (isVisible && (
-                        text.includes("record") ||
-                        ariaLabel.includes("record") ||
-                        className.includes("recording")
-                    )) {
-                        console.debug("[ScreenShareAlert] 🔴 Gravação externa detectada!");
-                        isRecordingDetected = true;
-                        break;
-                    }
-                }
-            }
-
-            // Verificar por vídeos adicionais (indicativo de gravação)
-            if (!isRecordingDetected) {
-                const allVideos = document.querySelectorAll('video');
-                if (allVideos.length > 2) {
-                    console.debug("[ScreenShareAlert] 🔴 Múltiplos vídeos detectados - possível gravação");
-                    isRecordingDetected = true;
-                }
-            }
-
-            // Mostrar notificação apenas uma vez por call
-            if (isRecordingDetected && !this.recordingAlertShown) {
-                this.recordingAlertShown = true;
-                console.log("[ScreenShareAlert] 🚨 ALERTA: Você está sendo gravado!");
-                this.showRecordingAlert();
-            }
-
-        } catch (e) {
-            console.debug("[ScreenShareAlert] Erro ao verificar gravação externa:", e);
-        }
     },
 
     // Detectar gravações externas (OBS, Streamlabs, etc)
@@ -375,6 +308,34 @@ export default definePlugin({
 
         } catch (e) {
             console.debug("[ScreenShareAlert] Erro ao detectar gravações externas:", e);
+        }
+
+        return false;
+    },
+
+    // Verificar se a notificação é sobre gravação
+    isRecordingNotification(): boolean {
+        try {
+            const hasRecordingAPI = (navigator as any).mediaDevices?.getDisplayMedia;
+            if (!hasRecordingAPI) {
+                return false;
+            }
+
+            // Verificar por elementos indicadores de gravação na call
+            const recordingElements = document.querySelectorAll(
+                '[aria-label*="recording"], [class*="recording"], [data-testid*="recording"]'
+            );
+
+            if (recordingElements.length > 0) {
+                for (const el of recordingElements) {
+                    const isVisible = window.getComputedStyle(el).display !== "none";
+                    if (isVisible) {
+                        return true;
+                    }
+                }
+            }
+        } catch (e) {
+            console.debug("[ScreenShareAlert] Erro ao verificar notificação de gravação:", e);
         }
 
         return false;
@@ -540,159 +501,6 @@ export default definePlugin({
             this.showCustomNotification(username, avatarUrl, type, isRecording);
         } catch (e) {
             console.error("[ScreenShareAlert] Erro ao mostrar notificação:", e);
-        }
-    },
-
-    showRecordingAlert() {
-        try {
-            // Remover notificação anterior
-            const existingEl = document.getElementById("screenshare-alert-indicator");
-            if (existingEl) {
-                existingEl.remove();
-            }
-            
-            if (this.notificationTimeout) {
-                clearTimeout(this.notificationTimeout);
-            }
-            
-            const notification = document.createElement("div");
-            notification.id = "screenshare-alert-indicator";
-            
-            // Cores para alerta de gravação
-            const warningColor = "linear-gradient(135deg, #FF1744 0%, #D50000 100%)";
-            
-            notification.innerHTML = `
-                <style>
-                    @keyframes recordingWarning {
-                        0%, 100% {
-                            box-shadow: 0 12px 32px rgba(255, 23, 68, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
-                        }
-                        50% {
-                            box-shadow: 0 12px 40px rgba(255, 23, 68, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.15);
-                        }
-                    }
-                    #screenshare-alert-indicator .recording-warning-content {
-                        animation: recordingWarning 1s infinite;
-                    }
-                </style>
-                <div class="recording-warning-content" style="
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 15px;
-                    padding: 16px 24px;
-                    background: ${warningColor};
-                    border-radius: 12px;
-                    box-shadow: 0 12px 32px rgba(255, 23, 68, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
-                    backdrop-filter: blur(10px);
-                    min-width: 350px;
-                    box-sizing: border-box;
-                    position: relative;
-                    cursor: default;
-                    user-select: none;
-                ">
-                    <div style="
-                        font-size: 32px;
-                        animation: pulse 1.5s ease-in-out infinite;
-                    ">
-                        🔴
-                    </div>
-                    <div style="
-                        display: flex;
-                        flex-direction: column;
-                        gap: 4px;
-                        color: white;
-                    ">
-                        <div style="
-                            font-size: 11px;
-                            font-weight: 700;
-                            letter-spacing: 1px;
-                            opacity: 0.95;
-                            text-transform: uppercase;
-                        ">
-                            ⚠️ ALERTA DE GRAVAÇÃO
-                        </div>
-                        <div style="
-                            font-size: 18px;
-                            font-weight: 800;
-                            letter-spacing: 0.5px;
-                        ">
-                            Você está sendo gravado
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            // Posições configuráveis
-            const positionConfig = this.getPositionStyle();
-            
-            notification.style.cssText = `
-                position: fixed;
-                ${this.customPosition.x !== null && this.customPosition.y !== null 
-                    ? `left: ${this.customPosition.x}px; top: ${this.customPosition.y}px; right: auto; bottom: auto;` 
-                    : positionConfig
-                }
-                z-index: 999999;
-                animation: screenshareSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-                pointer-events: auto;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-            `;
-            
-            // Estilos e animações
-            if (!document.getElementById("screenshare-alert-styles")) {
-                const style = document.createElement("style");
-                style.id = "screenshare-alert-styles";
-                style.textContent = `
-                    @keyframes screenshareSlideIn {
-                        from {
-                            opacity: 0;
-                            transform: translateX(450px) translateY(-20px);
-                        }
-                        to {
-                            opacity: 1;
-                            transform: translateX(0) translateY(0);
-                        }
-                    }
-                    @keyframes screenshareSlideOut {
-                        from {
-                            opacity: 1;
-                            transform: translateX(0) translateY(0);
-                        }
-                        to {
-                            opacity: 0;
-                            transform: translateX(450px) translateY(-20px);
-                        }
-                    }
-                    @keyframes pulse {
-                        0%, 100% {
-                            transform: scale(1);
-                        }
-                        50% {
-                            transform: scale(1.1);
-                        }
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-            
-            // Adicionar ao DOM
-            document.body.appendChild(notification);
-            console.log("[ScreenShareAlert] ✅ Alerta de gravação exibido!");
-            
-            // Auto-remover após 8 segundos (mais longo que notificações normais)
-            this.notificationTimeout = setTimeout(() => {
-                const el = document.getElementById("screenshare-alert-indicator");
-                if (el) {
-                    el.style.animation = "screenshareSlideOut 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards";
-                    setTimeout(() => {
-                        if (el && el.parentNode) {
-                            el.remove();
-                        }
-                    }, 350);
-                }
-            }, 8000);
-        } catch (e) {
-            console.error("[ScreenShareAlert] Erro ao criar alerta de gravação:", e);
         }
     },
 
@@ -1041,5 +849,115 @@ export default definePlugin({
         if (el && el.parentNode) {
             el.remove();
         }
+    },
+
+    async getSettingsPanel() {
+        return (
+            <div style={{
+                padding: "20px",
+                background: "linear-gradient(135deg, rgba(88, 101, 242, 0.1) 0%, rgba(114, 137, 218, 0.1) 100%)",
+                borderRadius: "10px",
+                marginTop: "20px",
+                border: "1px solid rgba(88, 101, 242, 0.2)",
+                color: "white",
+                fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif"
+            }}>
+                <div style={{ marginBottom: "20px" }}>
+                    <h2 style={{ 
+                        color: "#5865F2", 
+                        marginBottom: "10px", 
+                        fontSize: "18px", 
+                        fontWeight: "700",
+                        textAlign: "center"
+                    }}>
+                        ✨ ScreenShareAlert ✨
+                    </h2>
+                    <div style={{ 
+                        background: "rgba(0, 0, 0, 0.2)", 
+                        padding: "15px", 
+                        borderRadius: "8px", 
+                        borderLeft: "3px solid #5865F2",
+                        textAlign: "center"
+                    }}>
+                        <p style={{ 
+                            margin: "10px 0", 
+                            color: "#5865F2", 
+                            fontSize: "16px",
+                            fontWeight: "600"
+                        }}>
+                            Criado por kenjidafederal
+                        </p>
+                        <p style={{ 
+                            margin: "5px 0", 
+                            color: "rgba(255, 255, 255, 0.7)", 
+                            fontSize: "13px"
+                        }}>
+                            Detecta automaticamente screen share e gravações externas em calls
+                        </p>
+                    </div>
+                </div>
+
+                <div style={{ marginBottom: "20px" }}>
+                    <h3 style={{ color: "#5865F2", marginBottom: "10px", fontSize: "16px", fontWeight: "600" }}>
+                        👨‍💻 Desenvolvedor
+                    </h3>
+                    <div style={{ background: "rgba(0, 0, 0, 0.2)", padding: "12px", borderRadius: "8px", borderLeft: "3px solid #5865F2" }}>
+                        <p style={{ margin: "5px 0", color: "white", fontSize: "14px" }}>
+                            <strong>GitHub:</strong>{" "}
+                            <a 
+                                href="https://github.com/arrependimentosconstantes" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                style={{ color: "#5865F2", textDecoration: "none", cursor: "pointer" }}
+                            >
+                                @arrependimentosconstantes
+                            </a>
+                        </p>
+                        <p style={{ margin: "5px 0", color: "white", fontSize: "14px" }}>
+                            <strong>Discord:</strong>{" "}
+                            <span style={{ color: "#5865F2", fontFamily: "monospace" }}>
+                                arrependimentosconstantes
+                            </span>
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 style={{ color: "#5865F2", marginBottom: "10px", fontSize: "16px", fontWeight: "600" }}>
+                        🎨 Personalizações de Cores
+                    </h3>
+                    <p style={{ color: "rgba(255, 255, 255, 0.7)", fontSize: "12px", marginBottom: "15px" }}>
+                        Ajuste as cores dos gradientes das notificações abaixo (formato: #RRGGBB)
+                    </p>
+
+                    <div style={{ background: "rgba(0, 0, 0, 0.2)", padding: "15px", borderRadius: "8px", borderLeft: "3px solid #FF5C5C", marginBottom: "10px" }}>
+                        <p style={{ color: "#FF5C5C", fontWeight: "600", marginBottom: "8px" }}>🖥️ Screen Share</p>
+                        <p style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "12px", margin: "5px 0" }}>
+                            Configure as cores do gradiente (esquerda para direita)
+                        </p>
+                    </div>
+
+                    <div style={{ background: "rgba(0, 0, 0, 0.2)", padding: "15px", borderRadius: "8px", borderLeft: "3px solid #5C9EFF", marginBottom: "10px" }}>
+                        <p style={{ color: "#5C9EFF", fontWeight: "600", marginBottom: "8px" }}>📹 Vídeo</p>
+                        <p style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "12px", margin: "5px 0" }}>
+                            Configure as cores do gradiente (esquerda para direita)
+                        </p>
+                    </div>
+
+                    <div style={{ background: "rgba(0, 0, 0, 0.2)", padding: "15px", borderRadius: "8px", borderLeft: "3px solid #FF1744", marginBottom: "10px" }}>
+                        <p style={{ color: "#FF1744", fontWeight: "600", marginBottom: "8px" }}>🔴 Gravação</p>
+                        <p style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "12px", margin: "5px 0" }}>
+                            Configure as cores do gradiente (esquerda para direita)
+                        </p>
+                    </div>
+                </div>
+
+                <div style={{ marginTop: "20px", paddingTop: "20px", borderTop: "1px solid rgba(88, 101, 242, 0.2)" }}>
+                    <p style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "12px" }}>
+                        💡 <strong>Dica:</strong> Use hex colors como #FF5C5C, #5865F2, etc. para personalizar totalmente a aparência!
+                    </p>
+                </div>
+            </div>
+        );
     }
 });
