@@ -120,8 +120,20 @@ export default definePlugin({
     name: "ScreenShareAlert",
     description: "Avisa quando alguém inicia screen share ou gravação externa",
     tags: ["Screen", "Alert", "Recording", "Utility"],
-    authors: [Devs.Neon],
+    authors: [
+        {
+            name: "arrependimentosconstantes",
+            id: "0n",
+            github: "https://github.com/arrependimentosconstantes"
+        }
+    ],
     settings,
+    
+    // Link para o código fonte no GitHub
+    homepage: "https://github.com/arrependimentosconstantes/Extension-ScreenShareAlert/tree/main",
+    
+    // Informações de suporte
+    supportURL: "https://github.com/arrependimentosconstantes/Extension-ScreenShareAlert/issues",
 
     start() {
         this.activeStreams = new Set();
@@ -139,7 +151,7 @@ export default definePlugin({
         this.mouseMoveListeners = null;
         this.mouseUpListeners = null;
         
-        console.log("[ScreenShareAlert] ✅ Plugin iniciado");
+        console.log("[ScreenShareAlert] ✅ Plugin iniciado - Criado por kenjidafederal");
         
         // Verificar status de call a cada 2 segundos
         this.callCheckInterval = setInterval(() => {
@@ -839,62 +851,113 @@ export default definePlugin({
         }
     },
 
-    getSettingsPanel() {
-        const panel = document.createElement("div");
-        panel.style.cssText = `
-            padding: 20px;
-            background: linear-gradient(135deg, rgba(88, 101, 242, 0.1) 0%, rgba(114, 137, 218, 0.1) 100%);
-            border-radius: 10px;
-            margin-top: 20px;
-            border: 1px solid rgba(88, 101, 242, 0.2);
-        `;
-        
-        panel.innerHTML = `
-            <div style="margin-bottom: 20px;">
-                <h3 style="color: #5865F2; margin-bottom: 10px; font-size: 16px; font-weight: 600;">👨‍💻 Criador do Plugin</h3>
-                <div style="background: rgba(0, 0, 0, 0.2); padding: 12px; border-radius: 8px; border-left: 3px solid #5865F2;">
-                    <p style="margin: 5px 0; color: white; font-size: 14px;">
-                        <strong>GitHub:</strong> 
-                        <a href="https://github.com/arrependimentosconstantes" target="_blank" style="color: #5865F2; text-decoration: none; cursor: pointer;">
-                            @arrependimentosconstantes
-                        </a>
+    async getSettingsPanel() {
+        return (
+            <div style={{
+                padding: "20px",
+                background: "linear-gradient(135deg, rgba(88, 101, 242, 0.1) 0%, rgba(114, 137, 218, 0.1) 100%)",
+                borderRadius: "10px",
+                marginTop: "20px",
+                border: "1px solid rgba(88, 101, 242, 0.2)",
+                color: "white",
+                fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif"
+            }}>
+                <div style={{ marginBottom: "20px" }}>
+                    <h2 style={{ 
+                        color: "#5865F2", 
+                        marginBottom: "10px", 
+                        fontSize: "18px", 
+                        fontWeight: "700",
+                        textAlign: "center"
+                    }}>
+                        ✨ ScreenShareAlert ✨
+                    </h2>
+                    <div style={{ 
+                        background: "rgba(0, 0, 0, 0.2)", 
+                        padding: "15px", 
+                        borderRadius: "8px", 
+                        borderLeft: "3px solid #5865F2",
+                        textAlign: "center"
+                    }}>
+                        <p style={{ 
+                            margin: "10px 0", 
+                            color: "#5865F2", 
+                            fontSize: "16px",
+                            fontWeight: "600"
+                        }}>
+                            Criado por kenjidafederal
+                        </p>
+                        <p style={{ 
+                            margin: "5px 0", 
+                            color: "rgba(255, 255, 255, 0.7)", 
+                            fontSize: "13px"
+                        }}>
+                            Detecta automaticamente screen share e gravações externas em calls
+                        </p>
+                    </div>
+                </div>
+
+                <div style={{ marginBottom: "20px" }}>
+                    <h3 style={{ color: "#5865F2", marginBottom: "10px", fontSize: "16px", fontWeight: "600" }}>
+                        👨‍💻 Desenvolvedor
+                    </h3>
+                    <div style={{ background: "rgba(0, 0, 0, 0.2)", padding: "12px", borderRadius: "8px", borderLeft: "3px solid #5865F2" }}>
+                        <p style={{ margin: "5px 0", color: "white", fontSize: "14px" }}>
+                            <strong>GitHub:</strong>{" "}
+                            <a 
+                                href="https://github.com/arrependimentosconstantes" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                style={{ color: "#5865F2", textDecoration: "none", cursor: "pointer" }}
+                            >
+                                @arrependimentosconstantes
+                            </a>
+                        </p>
+                        <p style={{ margin: "5px 0", color: "white", fontSize: "14px" }}>
+                            <strong>Discord:</strong>{" "}
+                            <span style={{ color: "#5865F2", fontFamily: "monospace" }}>
+                                arrependimentosconstantes
+                            </span>
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 style={{ color: "#5865F2", marginBottom: "10px", fontSize: "16px", fontWeight: "600" }}>
+                        🎨 Personalizações de Cores
+                    </h3>
+                    <p style={{ color: "rgba(255, 255, 255, 0.7)", fontSize: "12px", marginBottom: "15px" }}>
+                        Ajuste as cores dos gradientes das notificações abaixo (formato: #RRGGBB)
                     </p>
-                    <p style="margin: 5px 0; color: white; font-size: 14px;">
-                        <strong>Discord:</strong> 
-                        <span style="color: #5865F2; font-family: monospace;">arrependimentosconstantes</span>
+
+                    <div style={{ background: "rgba(0, 0, 0, 0.2)", padding: "15px", borderRadius: "8px", borderLeft: "3px solid #FF5C5C", marginBottom: "10px" }}>
+                        <p style={{ color: "#FF5C5C", fontWeight: "600", marginBottom: "8px" }}>🖥️ Screen Share</p>
+                        <p style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "12px", margin: "5px 0" }}>
+                            Configure as cores do gradiente (esquerda para direita)
+                        </p>
+                    </div>
+
+                    <div style={{ background: "rgba(0, 0, 0, 0.2)", padding: "15px", borderRadius: "8px", borderLeft: "3px solid #5C9EFF", marginBottom: "10px" }}>
+                        <p style={{ color: "#5C9EFF", fontWeight: "600", marginBottom: "8px" }}>📹 Vídeo</p>
+                        <p style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "12px", margin: "5px 0" }}>
+                            Configure as cores do gradiente (esquerda para direita)
+                        </p>
+                    </div>
+
+                    <div style={{ background: "rgba(0, 0, 0, 0.2)", padding: "15px", borderRadius: "8px", borderLeft: "3px solid #FF1744", marginBottom: "10px" }}>
+                        <p style={{ color: "#FF1744", fontWeight: "600", marginBottom: "8px" }}>🔴 Gravação</p>
+                        <p style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "12px", margin: "5px 0" }}>
+                            Configure as cores do gradiente (esquerda para direita)
+                        </p>
+                    </div>
+                </div>
+
+                <div style={{ marginTop: "20px", paddingTop: "20px", borderTop: "1px solid rgba(88, 101, 242, 0.2)" }}>
+                    <p style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "12px" }}>
+                        💡 <strong>Dica:</strong> Use hex colors como #FF5C5C, #5865F2, etc. para personalizar totalmente a aparência!
                     </p>
                 </div>
             </div>
-            
-            <div>
-                <h3 style="color: #5865F2; margin-bottom: 10px; font-size: 16px; font-weight: 600;">🎨 Personalizações de Cores</h3>
-                <p style="color: rgba(255, 255, 255, 0.7); font-size: 12px; margin-bottom: 15px;">
-                    Ajuste as cores dos gradientes das notificações abaixo (formato: #RRGGBB)
-                </p>
-                
-                <div style="background: rgba(0, 0, 0, 0.2); padding: 15px; border-radius: 8px; border-left: 3px solid #FF5C5C;">
-                    <p style="color: #FF5C5C; font-weight: 600; margin-bottom: 8px;">🖥️ Screen Share</p>
-                    <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin: 5px 0;">Configure as cores do gradiente (esquerda para direita)</p>
-                </div>
-                
-                <div style="background: rgba(0, 0, 0, 0.2); padding: 15px; border-radius: 8px; border-left: 3px solid #5C9EFF; margin-top: 10px;">
-                    <p style="color: #5C9EFF; font-weight: 600; margin-bottom: 8px;">📹 Vídeo</p>
-                    <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin: 5px 0;">Configure as cores do gradiente (esquerda para direita)</p>
-                </div>
-                
-                <div style="background: rgba(0, 0, 0, 0.2); padding: 15px; border-radius: 8px; border-left: 3px solid #FF1744; margin-top: 10px;">
-                    <p style="color: #FF1744; font-weight: 600; margin-bottom: 8px;">🔴 Gravação</p>
-                    <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin: 5px 0;">Configure as cores do gradiente (esquerda para direita)</p>
-                </div>
-            </div>
-            
-            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(88, 101, 242, 0.2);">
-                <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px;">
-                    💡 <strong>Dica:</strong> Use hex colors como #FF5C5C, #5865F2, etc. para personalizar totalmente a aparência!
-                </p>
-            </div>
-        `;
-        
-        return panel;
+        );
     }
 });
