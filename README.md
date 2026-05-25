@@ -160,7 +160,7 @@ O objetivo do ScreenShare Alert é fornecer um sistema visual moderno e eficient
 
 ## 👨‍💻 Desenvolvedor
 
-**Criado por:** Kenjidafereral
+**Criado por:** Kenji da federal
 
 ### GitHub
 
