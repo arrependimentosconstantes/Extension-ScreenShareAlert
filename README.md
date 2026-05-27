@@ -1,183 +1,160 @@
 # Extension-ScreenShareAlert
 
-ScreenShare Alert é um plugin para o Vencord desenvolvido para monitorar em tempo real atividades dentro de chamadas de voz do Discord. Ele detecta automaticamente quando alguém inicia compartilhamento de tela, ativa a câmera ou quando há possíveis sinais de gravação externa, exibindo notificações visuais modernas e totalmente personalizáveis.
-
-O plugin foi criado com foco em desempenho, leveza e uma interface limpa, funcionando apenas enquanto você está em uma call ativa.
+ScreenShare Alert é um plugin para Vencord que detecta automaticamente Screen Share, webcam e possíveis gravações externas em calls do Discord. Possui notificações modernas, cores personalizáveis, sistema anti-spam, Drag & Drop e funciona apenas enquanto você estiver em uma call.
 
 ---
 
-# 📌 Sobre o plugin
+# ScreenShare Alert
 
-O **ScreenShare Alert** analisa elementos da interface do Discord em tempo real para identificar mudanças de estado nos participantes da call. Quando detecta uma atividade, ele exibe um alerta na tela com o nome, avatar e tipo de evento (Screen Share, vídeo ou gravação).
+Um plugin moderno para Vencord desenvolvido para monitorar atividades em chamadas de voz do Discord em tempo real.
+
+O **ScreenShare Alert** detecta automaticamente quando alguém inicia um compartilhamento de tela, liga a câmera ou quando uma possível gravação externa é identificada durante a call, exibindo notificações elegantes e totalmente personalizáveis na tela.
+
+Projetado com foco em desempenho, praticidade e visual moderno, o plugin oferece uma experiência limpa e intuitiva sem interferir na sua conversa.
 
 ---
 
 ## ✨ Recursos
 
-* 🖥️ Detecta automaticamente Screen Share
-* 📹 Detecta câmeras (webcam)
-* 🔴 Detecta possíveis gravações externas (experimental)
-* 📞 Funciona somente durante chamadas de voz ativas
+* 🖥️ Detecção automática de Screen Share
+* 📹 Detecção de webcam e transmissões de vídeo
+* 🔴 Sistema experimental de detecção de gravações externas
+* 📞 Funciona apenas enquanto você estiver em uma call
 * 🚫 Opção para ignorar seu próprio compartilhamento
-* 🎨 Sistema de cores totalmente personalizável
+* 🎨 Personalização completa das cores das notificações
 * 📍 Escolha da posição da notificação na tela
-* ✋ Sistema de arrastar e soltar (Drag & Drop)
-* ⚡ Notificações leves, rápidas e animadas
-* 🧠 Sistema anti-spam para evitar notificações repetidas
-* 🖼️ Exibe nome e avatar do usuário detectado
+* ✋ Sistema de Drag & Drop para mover livremente os alertas
+* ⚡ Notificações rápidas, leves e animadas
+* 🧠 Sistema anti-spam inteligente
+* 🖼️ Exibição de avatar e nome do usuário detectado
 * 🌈 Gradientes personalizados para cada tipo de alerta
 
 ---
 
 ## 🎨 Personalização
 
-Você pode configurar completamente o visual do plugin:
+O plugin permite configurar:
 
-* Cor do alerta de Screen Share (início e fim do gradiente)
-* Cor do alerta de Vídeo (início e fim do gradiente)
-* Cor do alerta de Gravação (início e fim do gradiente)
-* Tamanho da notificação (largura e altura)
-* Distância das bordas da tela (offset X e Y)
-* Posição da notificação (cantos ou centro da tela)
-* Ativar ou desativar arrastar e soltar
+* Cores dos alertas de Screen Share
+* Cores dos alertas de Vídeo
+* Cores dos alertas de Gravação
+* Tamanho da notificação
+* Altura e largura personalizada
+* Distância das bordas
+* Posição da notificação
+* Movimento livre via arrastar e soltar
 
-Tudo isso pode ser ajustado diretamente nas configurações do Vencord.
-
----
-
-## 📥 Instalação COMPLETA (Passo a passo detalhado)
-
-### 🔧 1. Abrir a pasta do Vencord
-
-Abra o Explorador de Arquivos e vá até:
-
-```txt id="p1v8aa"
-C:\Users\SEU_USUARIO\Documents\Vencord
-```
+Tudo diretamente nas configurações do plugin.
 
 ---
 
-### 📁 2. Criar a estrutura do plugin
+## 📥 Tutorial de Instalação
 
-Dentro da pasta:
+### 1. Abra a pasta do Vencord
 
+Exemplo:
+
+```txt
+C:\Users\SeuNome\Documents\Vencord
 ```
-Vencord/src/plugins/
+
+---
+
+### 2. Entre na pasta:
+
+```txt
+src
 ```
 
-crie uma nova pasta chamada:
+Depois:
 
-```txt id="p2v8bb"
+```txt
+plugins
+```
+
+---
+
+### 3. Crie uma pasta chamada:
+
+```txt
 ScreenShareAlert
 ```
 
 ---
 
-### 📄 3. Adicionar o arquivo do plugin
+### 4. Arraste o arquivo `index.tsx` para dentro da pasta
 
-Coloque o arquivo:
+O caminho final deve ficar parecido com:
 
-```txt id="p3v8cc"
-index.tsx
-```
-
-dentro da pasta:
-
-```
-Vencord/src/plugins/ScreenShareAlert/
+```txt
+Vencord/src/plugins/ScreenShareAlert/index.tsx
 ```
 
 ---
 
-### 💻 4. Instalar o Vencord via Git (se ainda não tiver)
+### 5. Abra o CMD dentro da pasta do Vencord
 
-Abra o CMD ou PowerShell e execute:
+Na barra superior do Explorer (onde aparece o caminho da pasta):
 
-```bash id="p4v8dd"
-# Navegue até a pasta Documents
-cd Documents
-
-# Clone o repositório do Vencord
-git clone https://github.com/Vendicated/Vencord
-
-# Entre na pasta criada
-cd Vencord
-
-# Instale as dependências
-pnpm install --frozen-lockfile
-```
-
----
-
-### ⚙️ 5. Compilar o Vencord
-
-Agora compile o projeto:
-
-```bash id="p5v8ee"
-# Para Discord Desktop
-pnpm build
-```
-
-ou
-
-```bash id="p6v8ff"
-# Para versão Web
-pnpm buildWeb
-```
-
----
-
-### 🚀 6. Abrir o CMD corretamente (alternativo)
-
-Se preferir, vá até:
-
-```
+```txt
 Documentos > Vencord
 ```
 
-Clique na barra de endereço, digite:
+Clique duas vezes até o texto ficar azul, digite:
 
-```txt id="p7v8gg"
+```txt
 cmd
 ```
 
 e pressione ENTER.
 
-Depois execute:
+---
 
-```bash id="p8v8hh"
+### 6. Compile o plugin
+
+Confirme se o CMD abriu assim:
+
+```txt
+C:\Users\SeuNome\Documents\Vencord>
+```
+
+Depois digite:
+
+```bash
 pnpm build
 ```
 
----
-
-### 🔄 7. Reiniciar o Discord
-
-Feche completamente o Discord e abra novamente.
+e pressione ENTER.
 
 ---
 
-### 🔌 8. Ativar o plugin
+### 7. Reinicie o Discord
 
-No Discord:
+Depois de compilar, reinicie o Discord completamente.
 
-```
-Configurações > Vencord > Plugins
+---
+
+### 8. Ative o plugin
+
+Abra:
+
+```txt
+Configurações do Vencord > Plugins
 ```
 
 Pesquise por:
 
-```
+```txt
 Screen
 ```
 
-Ative o **ScreenShareAlert**.
+Ative o plugin e pronto ✅
 
 ---
 
 ## 🚀 Objetivo
 
-O objetivo do ScreenShare Alert é fornecer alertas visuais rápidos e claros para qualquer atividade importante dentro da sua call, como compartilhamento de tela, câmera ou gravação, garantindo que você esteja sempre informado em tempo real sem precisar verificar manualmente.
+O objetivo do ScreenShare Alert é fornecer um sistema visual moderno e eficiente para alertar rapidamente quando atividades importantes acontecem dentro da sua call, mantendo você informado em tempo real sem precisar monitorar manualmente a interface do Discord.
 
 ---
 
@@ -185,10 +162,10 @@ O objetivo do ScreenShare Alert é fornecer alertas visuais rápidos e claros pa
 
 **Criado por:** Kenjidafereral
 
-### 🔗 GitHub
+### GitHub
 
 https://github.com/arrependimentosconstantes
 
-### 💬 Discord
+### Discord
 
 arrependimentosconstantes
