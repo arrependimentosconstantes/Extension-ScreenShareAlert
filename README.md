@@ -1,171 +1,98 @@
-# Extension-ScreenShareAlert
+# ScreenShare Alert — Vencord Plugin
 
-ScreenShare Alert é um plugin para Vencord que detecta automaticamente Screen Share, webcam e possíveis gravações externas em calls do Discord. Possui notificações modernas, cores personalizáveis, sistema anti-spam, Drag & Drop e funciona apenas enquanto você estiver em uma call.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Vencord](https://img.shields.io/badge/Vencord-Plugin-5865F2)](https://github.com/Vendicated/Vencord)
 
----
+Plugin de privacidade para Vencord que detecta quando alguém inicia screen share, liga a câmera ou possivelmente grava a call sem consentimento.
 
-# ScreenShare Alert
-
-Um plugin moderno para Vencord desenvolvido para monitorar atividades em chamadas de voz do Discord em tempo real.
-
-O **ScreenShare Alert** detecta automaticamente quando alguém inicia um compartilhamento de tela, liga a câmera ou quando uma possível gravação externa é identificada durante a call, exibindo notificações elegantes e totalmente personalizáveis na tela.
-
-Projetado com foco em desempenho, praticidade e visual moderno, o plugin oferece uma experiência limpa e intuitiva sem interferir na sua conversa.
+**Propósito:** alertar você quando outro participante da call inicia atividades que podem indicar gravação externa — screen share, ativação de câmera ou captura de tela/áudio.
 
 ---
 
-## ✨ Recursos
+## Funcionalidades
 
-* 🖥️ Detecção automática de Screen Share
-* 📹 Detecção de webcam e transmissões de vídeo
-* 🔴 Sistema experimental de detecção de gravações externas
-* 📞 Funciona apenas enquanto você estiver em uma call
-* 🚫 Opção para ignorar seu próprio compartilhamento
-* 🎨 Personalização completa das cores das notificações
-* 📍 Escolha da posição da notificação na tela
-* ✋ Sistema de Drag & Drop para mover livremente os alertas
-* ⚡ Notificações rápidas, leves e animadas
-* 🧠 Sistema anti-spam inteligente
-* 🖼️ Exibição de avatar e nome do usuário detectado
-* 🌈 Gradientes personalizados para cada tipo de alerta
+### Detecção (4 camadas)
+
+| Camada | Tipo | Confiabilidade |
+|--------|------|---------------|
+| L1 | VoiceStateStore do Discord — screen share e câmera | Alta |
+| L2 | Monitoramento WebRTC — anomalias em conexões peer | Média |
+| L3 | Interceptação de `getDisplayMedia` / `getUserMedia` — captura local | Média |
+| L4 | Indicadores visuais na UI do Discord — recording, clip | Heurística |
+
+> **Limitação:** Softwares externos (OBS, Streamlabs) rodando em outra máquina não são detectáveis via navegador. As camadas L2-L4 usam sinais indiretos.
+
+### Notificações
+
+- **Screen Share** — gradiente vermelho, com avatar e nome
+- **Câmera** — gradiente azul, com avatar e nome
+- **Gravação Detectada** — gradiente vermelho escuro com efeito pulsante
+- **Alerta sonoro** opcional (beep via Web Audio API)
+- **7 posições** configuráveis + **drag & drop** livre
+- **Largura/altura** ajustáveis
+- **Duração** configurável (3-15 segundos)
+- **Stack** de notificações (até 5 simultâneas)
+
+### Configurações
+
+| Setting | Descrição | Padrão |
+|---------|-----------|--------|
+| Notificação visual | Overlay de notificação | Ligado |
+| Som de alerta | Beep ao detectar atividade | Ligado |
+| Duração | Tempo na tela | 5s |
+| Máx. notificações | Simultâneas | 3 |
+| Ignorar próprio share | Não alerta quando você compartilha | Ligado |
+| Detectar screen share | Screen share de outros | Ligado |
+| Detectar câmera | Câmera de outros | Ligado |
+| Detectar gravações | Heurísticas de gravação | Ligado |
+| Detectar captura local | getDisplayMedia/getUserMedia | Ligado |
+| Posição | 7 posições + drag & drop | Top-Right |
+| Cores | Gradientes por tipo de alerta | — |
+| Debug mode | Logs no F12 | Desligado |
 
 ---
 
-## 🎨 Personalização
+## Instalação
 
-O plugin permite configurar:
+### 1. Localize a pasta do Vencord
 
-* Cores dos alertas de Screen Share
-* Cores dos alertas de Vídeo
-* Cores dos alertas de Gravação
-* Tamanho da notificação
-* Altura e largura personalizada
-* Distância das bordas
-* Posição da notificação
-* Movimento livre via arrastar e soltar
-
-Tudo diretamente nas configurações do plugin.
-
----
-
-## 📥 Tutorial de Instalação
-
-### 1. Abra a pasta do Vencord
-
-Exemplo:
-
-```txt
-C:\Users\SeuNome\Documents\Vencord
+```
+Vencord\src\plugins\
 ```
 
----
+### 2. Crie a pasta do plugin
 
-### 2. Entre na pasta:
+Crie `ScreenShareAlert` dentro de `plugins\`.
 
-```txt
-src
+### 3. Copie o arquivo
+
+Copie `index.tsx` para `Vencord\src\plugins\ScreenShareAlert\`.
+
+```
+Vencord\src\plugins\ScreenShareAlert\index.tsx
 ```
 
-Depois:
-
-```txt
-plugins
-```
-
----
-
-### 3. Crie uma pasta chamada:
-
-```txt
-ScreenShareAlert
-```
-
----
-
-### 4. Arraste o arquivo `index.tsx` para dentro da pasta
-
-O caminho final deve ficar parecido com:
-
-```txt
-Vencord/src/plugins/ScreenShareAlert/index.tsx
-```
-
----
-
-### 5. Abra o CMD dentro da pasta do Vencord
-
-Na barra superior do Explorer (onde aparece o caminho da pasta):
-
-```txt
-Documentos > Vencord
-```
-
-Clique duas vezes até o texto ficar azul, digite:
-
-```txt
-cmd
-```
-
-e pressione ENTER.
-
----
-
-### 6. Compile o plugin
-
-Confirme se o CMD abriu assim:
-
-```txt
-C:\Users\SeuNome\Documents\Vencord>
-```
-
-Depois digite:
+### 4. Compile
 
 ```bash
 pnpm build
 ```
 
-e pressione ENTER.
+### 5. Reinicie o Discord completamente
+
+### 6. Ative
+
+Configurações do Vencord → Plugins → "ScreenShareAlert" → Ativar
 
 ---
 
-### 7. Reinicie o Discord
+## Desenvolvedor
 
-Depois de compilar, reinicie o Discord completamente.
-
----
-
-### 8. Ative o plugin
-
-Abra:
-
-```txt
-Configurações do Vencord > Plugins
-```
-
-Pesquise por:
-
-```txt
-Screen
-```
-
-Ative o plugin e pronto ✅
+- **GitHub:** [@arrependimentosconstantes](https://github.com/arrependimentosconstantes)
+- **Discord:** arrependimentosconstantes
 
 ---
 
-## 🚀 Objetivo
+## Licença
 
-O objetivo do ScreenShare Alert é fornecer um sistema visual moderno e eficiente para alertar rapidamente quando atividades importantes acontecem dentro da sua call, mantendo você informado em tempo real sem precisar monitorar manualmente a interface do Discord.
-
----
-
-## 👨‍💻 Desenvolvedor
-
-**Criado por:** SemSalvação
-
-### GitHub
-
-https://github.com/arrependimentosconstantes
-
-### Discord
-
-arrependimentosconstantes
+MIT — veja [LICENSE](LICENSE).
