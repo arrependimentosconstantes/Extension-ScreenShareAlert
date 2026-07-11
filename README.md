@@ -88,8 +88,8 @@ Configurações do Vencord → Plugins → "ScreenShareAlert" → Ativar
 
 ## Desenvolvedor
 
-- **GitHub:** [@arrependimentosconstantes](https://github.com/arrependimentosconstantes)
-- **Discord:** arrependimentosconstantes
+- **GitHub:** [@sorrowneverends](https://github.com/sorrowneverends)
+- **Discord:** sorrowneverends
 
 ---
 
